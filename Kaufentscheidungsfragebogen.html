@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Kaufentscheidungsfragebogen</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; background-color: #f4f4f4; }
+        h1 { background-color: #b7dee8; padding: 10px; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
+        th, td { border: 1px solid #ccc; padding: 12px; text-align: left; }
+        th { background-color: #e3f1f3; }
+        select { width: 100%; padding: 5px; }
+        #result, #reason { font-weight: bold; margin-top: 20px; font-size: 1.1em; }
+        button { margin-top: 20px; padding: 10px 20px; font-size: 1em; }
+    </style>
+</head>
+<body>
+    <h1>Psychologischer Fragebogen zur Kaufentscheidung</h1>
+    <p>Bitte beantworte die folgenden Fragen ehrlich:</p>
+    <table>
+        <thead>
+            <tr><th>Frage</th><th>Antwort</th></tr>
+        </thead>
+        <tbody id="questionnaire">
+        </tbody>
+    </table>
+    <button onclick="evaluate()">Auswertung anzeigen</button>
+    <p id="result"></p>
+    <p id="reason"></p>
+
+    <script>
+        const questions = [
+            { text: "1. Brauche ich dieses Produkt wirklich, um ein konkretes Problem zu lösen?", positive: true },
+            { text: "2. Wird dieses Produkt mein Leben langfristig verbessern?", positive: true },
+            { text: "3. Kaufe ich das aus Langeweile, Frust oder zur Belohnung?", positive: false },
+            { text: "4. Kann ich mir das aktuell problemlos leisten, ohne auf Wichtiges zu verzichten?", positive: true },
+            { text: "5. Habe ich bereits etwas Ähnliches, das noch funktioniert?", positive: false },
+            { text: "6. Könnte ich es auch leihen oder gebraucht günstiger bekommen?", positive: false },
+            { text: "7. Habe ich darüber nachgedacht oder ist es ein Impulskauf?", positive: false },
+            { text: "8. Habe ich dieses Bedürfnis bereits mehrmals gespürt (und ignoriert)?", positive: false },
+            { text: "9. Was würde passieren, wenn ich es nicht kaufe?", positive: true },
+            { text: "10. Werde ich das Produkt in einem Monat noch nutzen/wollen?", positive: true },
+        ];
+
+        const tbody = document.getElementById("questionnaire");
+        questions.forEach((q, index) => {
+            const tr = document.createElement("tr");
+            const tdQuestion = document.createElement("td");
+            tdQuestion.textContent = q.text;
+            const tdAnswer = document.createElement("td");
+            const select = document.createElement("select");
+            select.innerHTML = `
+                <option value="">Bitte wählen</option>
+                <option value="Ja">Ja</option>
+                <option value="Unsicher">Unsicher</option>
+                <option value="Nein">Nein</option>`;
+            select.setAttribute("data-positive", q.positive);
+            tdAnswer.appendChild(select);
+            tr.appendChild(tdQuestion);
+            tr.appendChild(tdAnswer);
+            tbody.appendChild(tr);
+        });
+
+        function evaluate() {
+            let score = 0;
+            const selects = document.querySelectorAll("select");
+            for (const sel of selects) {
+                const val = sel.value;
+                const isPositive = sel.getAttribute("data-positive") === "true";
+                if (val === "Ja") score += isPositive ? 2 : 0;
+                if (val === "Unsicher") score += 1;
+                if (val === "Nein") score += isPositive ? 0 : 2;
+            }
+
+            let result = "";
+            let reason = "";
+            if (score >= 16) {
+                result = "Ja, der Kauf ist gut begründet.";
+                reason = "Du hast viele rationale und sinnvolle Gründe angegeben, und der Kauf scheint durchdacht und gerechtfertigt.";
+            } else if (score >= 10) {
+                result = "Überlege es dir nochmal in Ruhe – es ist nicht eindeutig.";
+                reason = "Du bist dir bei einigen Punkten unsicher oder es gibt emotionale Auslöser – schlafe eine Nacht drüber.";
+            } else {
+                result = "Lass es lieber – der Kauf scheint impulsiv oder unnötig zu sein.";
+                reason = "Viele Antworten deuten auf einen Impuls oder fehlenden Bedarf hin – warte besser ab oder hinterfrage dein Motiv.";
+            }
+
+            document.getElementById("result").textContent = "Ergebnis: " + result;
+            document.getElementById("reason").textContent = reason;
+        }
+    </script>
+</body>
+</html>
